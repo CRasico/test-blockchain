@@ -2,7 +2,7 @@ from core.block import Block
 import time
 import json
 
-from core.serialization.block_json_encoder import BlockJSONEncoder
+from core.serialization.blockchain_json_encoder import BlockchainJSONEncoder
 
 class Blockchain:
     def __init__(self) -> None:
@@ -18,7 +18,7 @@ class Blockchain:
         self.chain.append(genesis_block)
 
     def __str__(self) -> str:
-        return json.dumps(self.__dict__, sort_keys=True, cls=BlockJSONEncoder)
+        return json.dumps(self.__dict__, sort_keys=True, cls=BlockchainJSONEncoder)
 
     @property
     def last_block(self) -> Block:
@@ -45,17 +45,18 @@ class Blockchain:
         return (block_hash.startswith('0' * self.difficulty) and 
             block_hash == block.compute_hash()) 
 
-    def add_new_transaction(self, transaction: Block):
+    def add_new_transaction(self, transaction: any):
         self.waiting_transactions.append(transaction)
 
+    # FIXME: Not currently adding blocks properly
     def mine(self) -> str:
-        if not self.unconfirmed_transactions:
+        if not self.waiting_transactions:
             return False
         
         last_block = self.last_block
-        new_block = Block([], time.time(), last_block.hash)
+        new_block = Block(self.waiting_transactions, time.time(), last_block.hash, 0)
 
         proof = self.proof_of_work(new_block)
-        self.add_block(new_block, proof)
-        self.waiting_transactions.pop(0)
+        self.try_add_block(new_block, proof)
+        self.waiting_transactions = []
         return new_block.hash

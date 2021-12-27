@@ -1,9 +1,9 @@
 from json import JSONEncoder
 from typing import Any
-from uuid import UUID
+from core.block import Block
 
-class BlockJSONEncoder(JSONEncoder):
+class BlockchainJSONEncoder(JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, UUID):
+        if isinstance(obj, Block):
             return str(obj)
         return JSONEncoder.default(self, obj)
