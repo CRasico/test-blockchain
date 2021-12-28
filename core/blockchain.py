@@ -1,8 +1,8 @@
-from core.block import Block
+import uuid
 import time
 import json
-
-from core.serialization.blockchain_json_encoder import BlockchainJSONEncoder
+from core.block import Block
+from core.serialization.complex_object_encoder import ComplexObjectEncoder
 
 class Blockchain:
     def __init__(self) -> None:
@@ -18,26 +18,29 @@ class Blockchain:
         self.chain.append(genesis_block)
 
     def __str__(self) -> str:
-        return json.dumps(self.__dict__, sort_keys=True, cls=BlockchainJSONEncoder)
+        return json.dumps(self.__dict__, sort_keys=True, cls=ComplexObjectEncoder)
 
     @property
     def last_block(self) -> Block:
         return self.chain[-1]
 
     # TODO: guess we'll just start with a POW model, maybe split this in the future
+    # TODO: make a proof of stake chain as well. (maybe have a block chain base class and then split them out more in the future.)
     def proof_of_work(self, block: Block) -> str:
         computed_hash = block.compute_hash()
-        while not computed_hash.startswith('0', self.difficulty):
+        while not computed_hash.startswith('0' * self.difficulty):
             block.nonce += 1
             computed_hash = block.compute_hash()
         return computed_hash
-    
+
+
     def try_add_block(self, block: Block, proof: str) -> bool:
         previous_hash = self.last_block.hash
         if previous_hash != block.previous_hash:
             return False
         if not self.is_valid_proof(block, proof):
             return False
+        block.hash = proof
         self.chain.append(block)
         return True
     
@@ -51,12 +54,13 @@ class Blockchain:
     # FIXME: Not currently adding blocks properly
     def mine(self) -> str:
         if not self.waiting_transactions:
-            return False
+            return ""
         
         last_block = self.last_block
         new_block = Block(self.waiting_transactions, time.time(), last_block.hash, 0)
 
         proof = self.proof_of_work(new_block)
-        self.try_add_block(new_block, proof)
+        if not self.try_add_block(new_block, proof):
+            return ""
         self.waiting_transactions = []
-        return new_block.hash
+        return new_block.compute_hash()
