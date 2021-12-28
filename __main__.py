@@ -20,6 +20,7 @@ Input one of the following commands:
 
 Command to Run: 
 """
+input_difficulty = "Input the difficulty(integer MAX 65) for the blockchain: "
 invalid_command_msg = "Invalid command attempted please try again"
 transaction_message = "Adding a new Transaction {} to the Blockchain"
 mine_message = "Mining a new Block for the Chain"
@@ -31,7 +32,11 @@ print_message = "Below is the current state of the block chain!"
 Quick main function to test the block chain and see how we're doing
 """
 def main():
-    blockchain = Blockchain()
+    difficulty = int(input(input_difficulty))
+
+    if difficulty <= 0 or difficulty > 65: return
+
+    blockchain = Blockchain(difficulty)
 
     while True:
         possible_commands = ["t", "m", "p", "q"]

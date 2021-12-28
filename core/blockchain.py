@@ -5,10 +5,10 @@ from core.block import Block
 from core.serialization.complex_object_encoder import ComplexObjectEncoder
 
 class Blockchain:
-    def __init__(self) -> None:
+    def __init__(self, difficulty: int = 2) -> None:
         self.chain = []
         self.waiting_transactions = []
-        self.difficulty = 2
+        self.difficulty = difficulty
 
         self.create_genesis_block()
 
