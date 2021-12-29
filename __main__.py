@@ -51,6 +51,7 @@ def main():
             print(transaction_message.format(transaction))
             blockchain.add_new_transaction(transaction)
 
+        # TODO: Add a timer to the mine command (would be cool to know how long the transactions take)
         if command == mine_command:
             print(mine_message)
             new_block_id = blockchain.mine()
